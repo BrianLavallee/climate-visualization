@@ -1,0 +1,28 @@
+
+
+Mitra Alirezaei
+Kevin Reilly
+
+(The two people that reviewed us were not part of a group together)
+
+Suggestions:
+	1. Color the pixel maps.
+	2. Are there any other ways that you could encode the country data besides a table?
+		-Let users select the countries on a world map
+		-Select a region on a world map and list the countries in that region. Then select countries from the list.
+	3. Can you include additional data on each country?
+		- population?
+	4. Can you zoom in on a particular city?
+
+
+Response:
+	1. We are going to look into ways in which we can color the pixel maps. We have found tools online that will allow us to convert the pixel maps in to geo-json. We can color it once it is in that format.
+
+	2. We have explored various ways of encoding this data but we still think that a table is the best way. We don't have data on all of the countries because many of them are land locked. If we allow users to select countries on a world map, many of them would be un-selectable. The other idea was to let users select a region on the map, and to display a list of countries in that region. However, we don't think this adds much since the region data will be included in the table, and you will be able to sort it there.
+
+	3. We are considering including the population for each country. We anticipate that finding that data will be very easy. However, we do not have the data on how many people will be affected after different sea level rise scenarios. That would be very hard to include because we don't know the density of the population in coastal regions.
+
+	4. We will consider adding this as an optional feature. As we do the project, if we see any particularly interesting cities that are affected, we may highlight this data.
+
+
+
