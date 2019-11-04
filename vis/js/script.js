@@ -1,4 +1,6 @@
 
-d3.csv('data/area_impact.csv', data => {
-    console.log("area impact data: ", data);
+d3.csv('data/area_impact.csv').then(data => {
+
+    let table = new Table();
+    table.createTable(data);
 });
