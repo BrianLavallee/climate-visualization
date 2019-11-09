@@ -1,10 +1,14 @@
 
 class CountryView {
 
-    constructor() {
-        this.activeMeters = 0;
-        this.sliderWidthPX = 425;
+    constructor(activeMeters, UpdateTableActiveMeters) {
 
+        this.activeMeters = activeMeters;
+
+        this.activeCountry = undefined;
+
+        this.UpdateTableActiveMeters = UpdateTableActiveMeters;
+        this.sliderWidthPX = 425;
 
         this.createInfoBox();
         this.drawYearBar();
@@ -25,18 +29,17 @@ class CountryView {
         infoBox.append('h4').classed('country-percent-impacted', true);
     }
 
-    updateInfoBox(countryRegion, country, impactedArea, percentImpact) {
+    updateInfoBox(countryObj) {
 
-        d3.select('.country-name').html(country);
-        d3.select('.country-region').html(countryRegion);
-        d3.select('.country-impacted-area').html('Impacted Area: ' + impactedArea);
-        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + percentImpact);
+        this.countryObj = countryObj;
+
+        d3.select('.country-name').html(this.countryObj.Country);
+        d3.select('.country-region').html(this.countryObj.Region);
+        d3.select('.country-impacted-area').html('Impacted Area: ' + getAreaImpacted(this.countryObj, this.activeMeters));
+        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + getPercentImpacted(this.countryObj, this.activeMeters));
     }
 
     drawYearBar() {
-
-        this.activeMeters = 2;
-
 
         d3
             .select('#CountryView')
@@ -73,9 +76,10 @@ class CountryView {
 
         yearSlider.on('input', (_, __, sliderArr) => {
 
-            // TODO update table data
+            this.activeMeters = +(sliderArr[0].value);
 
-            this.activeMeters = sliderArr[0].value;
+            this.UpdateTableActiveMeters(+this.activeMeters);
+            this.updateInfoBox(this.countryObj);
 
             // update year slider text
             d3
