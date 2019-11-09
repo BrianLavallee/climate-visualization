@@ -4,18 +4,39 @@ class CountryView {
     constructor() {
         this.activeMeters = 0;
         this.sliderWidthPX = 425;
+
+
+        this.createInfoBox();
+        this.drawYearBar();
     }
 
+    createInfoBox() {
+
+        d3
+        .select('#CountryView')
+        .append('div')
+        .attr('id', 'CountryInfo');
+
+        let infoBox = d3.select('#CountryInfo');
+
+        infoBox.append('h2').classed('country-name', true);
+        infoBox.append('h4').classed('country-region', true);
+        infoBox.append('h4').classed('country-impacted-area', true);
+        infoBox.append('h4').classed('country-percent-impacted', true);
+    }
+
+    updateInfoBox(countryRegion, country, impactedArea, percentImpact) {
+
+        d3.select('.country-name').html(country);
+        d3.select('.country-region').html(countryRegion);
+        d3.select('.country-impacted-area').html('Impacted Area: ' + impactedArea);
+        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + percentImpact);
+    }
 
     drawYearBar() {
 
         this.activeMeters = 2;
 
-
-        d3
-            .select('#CountryView')
-            .append('div')
-            .attr('id', 'CountryInfo');
 
         d3
             .select('#CountryView')

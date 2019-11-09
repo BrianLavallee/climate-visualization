@@ -1,18 +1,4 @@
 
-/**
- * Data for td elements
- */
-class TData {
-    /**
-     * 
-     * @param visType 
-     * @param value 
-     */
-    constructor(visType, value) {
-        this.visType = visType;
-        this.value = value;
-    }
-}
 
 // Types of vis to appear in tds
 let VisType = {
@@ -21,8 +7,10 @@ let VisType = {
 
 class Table {
 
-    constructor() {
+    constructor(countryViewRef, data) {
+        this.countryViewRef = countryViewRef;
 
+        this.createTable(data);
     }
 
     createTable(data) {
@@ -49,10 +37,15 @@ class Table {
             })
             .join('td');
 
-        // write text
+        // fill in table
         d3
             .selectAll('td')
             .filter(d => d.visType === VisType.Text)
             .text(d => d.value);
+
+        rows.on('click', x => {
+            console.log("TODO populate with selected data");
+            this.countryViewRef.updateInfoBox(x.Region, x.Country, x.area_1m, x.percent_1m);
+        });
     }
 }
