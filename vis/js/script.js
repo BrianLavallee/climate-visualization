@@ -1,5 +1,5 @@
 
-d3.csv('data/area_impact.csv').then(data => {
+d3.csv('data/area-population-impact.csv').then(data => {
 
     let countryView = undefined;
     let table = undefined;
