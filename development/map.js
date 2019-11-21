@@ -1,26 +1,92 @@
 
 class Map {
 
-	constructor(dem, src) {
+	constructor() {
+		this.blocksize = 5;
+		this.width = 4800;
+		this.height = 6000;
+		this.rise = 0;
+		this.svgwidth = 600;
+		this.svgheight = 750;
+	}
+
+	change_map(name) {
+		let that = this;
+		let demreq = new XMLHttpRequest();
+		demreq.open("GET", "./" + name + ".dem", true);
+		demreq.responseType = "arraybuffer";
+
+		demreq.onload = function (demevent) {
+			let arrayBuffer = demreq.response; // Note: not oReq.responseText
+			if (arrayBuffer) {
+				let dem = new Int8Array(arrayBuffer);
+
+				let srcreq = new XMLHttpRequest();
+				srcreq.open("GET", "./" + name + ".src", true);
+				srcreq.responseType = "arraybuffer";
+				srcreq.onload = function(srcevent) {
+					let buff = srcreq.response;
+					if (buff) {
+						let src = new Int8Array(buff);
+						that.process(dem, src);
+						that.draw(that.rise);
+					}
+				};
+
+				srcreq.send(null);
+			}
+		};
+
+		demreq.send(null);
+	}
+
+	process(dem, src) {
 		let temp = new Int16Array(dem.length / 2);
 		for (let i = 0; i < dem.length; i += 2) {
 			let x = (dem[i] << 8) + dem[i+1];
 			temp[i/2] = x;
 		}
 
-		let blocksize = 5;
-		let width = 4800;
-		let height = 6000;
-		let rise = 0;
+		this.dem = this.downselect(temp);
+		this.src = this.downselect(src);
+	}
 
-		this.dem = this.downselect(temp, width, height, blocksize);
-		this.src = this.downselect(src, width, height, blocksize);
+	downselect(data) {
+		let h = this.height;
+		let w = this.width;
+		let bs = this.blocksize;
+
+		let dsdata = new Int16Array(h/bs * w/bs);
+		for (let row = 0; row < h; row += bs) {
+			for (let col = 0; col < w; col += bs) {
+				let val = data[row * w + col];
+				for (let i = 0; i < bs; i++) {
+					for (let j = 0; j < bs; j++) {
+						let index = ((row + i) * w) + (col + j);
+						val = Math.max(val, data[index]);
+					}
+				}
+
+				dsdata[row/bs * w/bs + col/bs] = val;
+			}
+		}
+
+		return dsdata;
+	}
+
+	draw(rise) {
+		this.rise = rise;
+		let tempsrc = this.src.slice(0);
+
+		let h = this.height;
+		let w = this.width;
+		let bs = this.blocksize;
 
 		let visited = new Set();
 		let stack = [];
-		for (let row = 0; row < height/blocksize; row++) {
-			for (let col = 0; col < width/blocksize; col++) {
-				if (this.src[row * width/blocksize + col] == 0) {
+		for (let row = 0; row < h/bs; row++) {
+			for (let col = 0; col < w/bs; col++) {
+				if (tempsrc[row * w/bs + col] == 0) {
 					stack.push([row, col]);
 				}
 			}
@@ -31,20 +97,20 @@ class Map {
 			let row = x[0];
 			let col = x[1];
 
-			let index = row * width/blocksize + col;
+			let index = row * w/bs + col;
 			if (visited.has(index)) {
 				continue;
 			}
 
-			this.src[index] = 0;
+			tempsrc[index] = 0;
 			visited.add(index);
 
 			let neighbors = [[row + 1, col], [row - 1, col], [row, col + 1], [row, col - 1]];
 			for (let n of neighbors) {
 				let r = n[0];
 				let c = n[1];
-				if (r < height/blocksize && r >= 0 && col < width/blocksize & col >= 0) {
-					let i = r * width/blocksize + c;
+				if (r < h/bs && r >= 0 && col < w/bs & col >= 0) {
+					let i = r * w/bs + c;
 					if (this.dem[i] <= rise) {
 						if (!visited.has(i)) {
 							stack.push(n);
@@ -54,46 +120,15 @@ class Map {
 			}
 		}
 
+		var basecontour = d3.contours()
+			.size([w/bs, h/bs])
+			.thresholds([1])
+			(this.src);
 
-		// let visited = new Set();
-		// for (let row = 0; row < height/blocksize; row++) {
-		// 	for (let col = 0; col < width/blocksize; col++) {
-		// 		if (this.src[row * width + col] == 0) {
-		// 			this.dfs(this.dem, this.src, row, col, width/blocksize, height/blocksize, rise, visited);
-		// 		}
-		// 	}
-		// }
-		//
-		// let mine = 1000000;
-		// for (let row = 0; row < height/blocksize; row++) {
-		// 	for (let col = 0; col < width/blocksize; col++) {
-		// 		if (this.src[row * width/blocksize + col] > 0) {
-		// 			mine = Math.min(mine, this.dem[row * width/blocksize + col]);
-		// 		}
-		// 	}
-		// }
-		//
-		// for (let row = 0; row < height/blocksize; row++) {
-		// 	for (let col = 0; col < width/blocksize; col++) {
-		// 		if (this.src[row * width/blocksize + col] > 0) {
-		// 			this.dem[row * width/blocksize + col] -= mine;
-		// 		}
-		// 	}
-		// }
-
-		var contours = d3.contours()
-		    .size([width/blocksize, height/blocksize])
-		    .thresholds([1])
-		    (this.src);
-
-
-		// contours.push(d3.contours().size([width/blocksize, height/blocksize]).thresholds([rise + 1])(this.dem)[0]);
-
-		// console.log(contours);
-
-
-		let svgwidth = 600;
-		let svgheight = 750;
+		var risecontour = d3.contours()
+			.size([w/bs, h/bs])
+			.thresholds([1])
+			(tempsrc);
 
 		function scale (xscale, yscale) {
 	        return d3.geoTransform({
@@ -103,33 +138,16 @@ class Map {
 	        });
 	    }
 
-		let svg = d3.select("#map").attr("width", svgwidth).attr("height", svgheight);
-		let path = d3.geoPath().projection(scale(blocksize/width*svgwidth, blocksize/height*svgheight));
+		let svg = d3.select("#map").attr("width", this.svgwidth).attr("height", this.svgheight);
+		svg.selectAll("rect").data([0]).enter().append("rect").attr("fill", "#3e6e7a").attr("width", this.svgwidth).attr("height", this.svgheight);
+		let path = d3.geoPath().projection(scale(bs/w*this.svgwidth, bs/h*this.svgheight));
 
-		svg.selectAll("path")
-			.data(contours)
-			.enter()
-			.append("path")
-			.attr("d", path);
-			// .attr("fill", (d, i) => ["red", "black"][i]);
-	}
+		let base = svg.selectAll(".basemap").data(basecontour);
+		base.enter().append("path").attr("class", "basemap").attr("d", d => path(d)).attr("fill", "#879ca3");
+		base.attr("d", d => path(d));
 
-	downselect(data, width, height, blocksize) {
-		let dsdata = new Int16Array(height/blocksize * width/blocksize);
-		for (let row = 0; row < height; row += blocksize) {
-			for (let col = 0; col < width; col += blocksize) {
-				let val = data[row * width + col];
-				for (let i = 0; i < blocksize; i++) {
-					for (let j = 0; j < blocksize; j++) {
-						let index = ((row + i) * width) + (col + j);
-						val = Math.max(val, data[index]);
-					}
-				}
-
-				dsdata[row/blocksize * width/blocksize + col/blocksize] = val;
-			}
-		}
-
-		return dsdata;
+		let top = svg.selectAll(".risemap").data(risecontour);
+		top.enter().append("path").attr("class", "risemap").attr("d", d => path(d)).attr("fill", "#567d46");
+		top.attr("d", d => path(d));
 	}
 }

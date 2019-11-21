@@ -12,5 +12,5 @@ d3.csv('data/area-population-impact.csv').then(data => {
 
     countryView = new CountryView(activeMeters, UpdateTableActiveMeters);
     table = new Table(countryView, data, activeMeters);
-
+    countryView.change_map("e020n40");
 });
