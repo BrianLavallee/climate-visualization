@@ -18,15 +18,15 @@
 
 <body>
 
-    <div class="container">
+    <div class="custom-container">
         <header>
             <h1>Global Impact of Sea Level Rise</h1>
             <div>Brian Lavallee and Daniel Merrell</div>
         </header>
 
         <div class="row">
-            <div class="col-6">
-                <table id="CountryTable">
+            <div id="CountryTableWrap" class="col-6 wrap">
+                <table class="head">
                     <thead>
                         <tr class="header-row">
                             <th>Region</th>
@@ -36,10 +36,14 @@
                             <th>Population Density of Impacted Area</th>
                         </tr>
                     </thead>
-                    <tbody>
-
-                    </tbody>
                 </table>
+                <div id="CountryTable" class="inner-table">
+                    <table>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
 

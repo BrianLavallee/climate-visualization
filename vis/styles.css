@@ -1,6 +1,48 @@
 
+.custom-container {
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 10px;
+}
+
+
 .population-density rect {
     fill: #4CAF50;
+}
+
+#CountryTable {
+    height: 85vh;
+    overflow: auto;
+}
+
+.wrap {
+    width: 352px;
+}
+
+.wrap table {
+    width: 300px;
+    table-layout: fixed;
+}
+
+table tr td {
+    padding: 5px;
+    width: 120px;
+    word-wrap: break-word;
+}
+
+table tr th {
+    padding: 5px;
+    width: 120px;
+    word-wrap: break-word;
+}
+
+table.head tr td {
+    background: #eee;
+}
+
+.inner_table {
+    height: 70px;
+    overflow-y: auto;
 }
 
 /* slider styling */
