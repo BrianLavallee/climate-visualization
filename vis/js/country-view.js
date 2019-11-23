@@ -37,11 +37,12 @@ class CountryView {
 
     update(countryObj) {
         this.countryObj = countryObj;
-        updateInfoBox(countryObj);
+        this.updateInfoBox(countryObj);
         this.change_map("e020n40");
     }
 
     updateInfoBox(countryObj) {
+        this.countryObj = countryObj;
         d3.select('.country-name').html(this.countryObj.Country);
         d3.select('.country-region').html(this.countryObj.Region);
         d3.select('.country-impacted-area').html('Impacted Area: ' + getAreaImpacted(this.countryObj, this.activeMeters));
@@ -88,7 +89,7 @@ class CountryView {
         yearSlider.on('input', (_, __, sliderArr) => {
 
             this.activeMeters = +(sliderArr[0].value);
-            this.draw(this.activeMeters);
+			this.draw(this.activeMeters);
 
             this.UpdateTableActiveMeters(+this.activeMeters);
             this.updateInfoBox(this.countryObj);

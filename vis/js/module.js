@@ -20,7 +20,8 @@ let tableClassNames = {
     country: 'country',
     area: 'area',
     areaImpact: 'area-impact',
-    percentImpact: 'percent-impact'
+    percentImpact: 'percent-impact',
+    populationDensity: 'population-density'
 };
 
 
@@ -38,7 +39,7 @@ function getAreaImpacted(countryObj, activeMeters) {
         case 5:
             return countryObj.area_5m;
         default:
-            return countryObj.area_1m;
+            return 0;
     }
 }
 
@@ -56,6 +57,24 @@ function getPercentImpacted(countryObj, activeMeters) {
         case 5:
             return countryObj.percent_5m;
         default:
-            return countryObj.percent_1m;
+            return 0;
+    }
+}
+
+function getPopDensityImpacted(countryObj, activeMeters) {
+
+    switch(activeMeters) {
+        case 1:
+            return countryObj.pop_density_1m;
+        case 2:
+            return countryObj.pop_density_2m;
+        case 3:
+            return countryObj.pop_density_3m;
+        case 4:
+            return countryObj.pop_density_4m;
+        case 5:
+            return countryObj.pop_density_5m;
+        default:
+            return 0;
     }
 }
