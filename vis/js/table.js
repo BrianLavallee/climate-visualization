@@ -11,6 +11,14 @@ let Cell = {
     Height: 40
 };
 
+let Columns = {
+    Region: 'region',
+    Country: 'country',
+    Area: 'impacted-area',
+    AreaPercent: 'percent-impact',
+    Density: 'population-density'
+};
+
 class Table {
 
     constructor(countryViewRef, data, activeMeters) {
@@ -21,22 +29,40 @@ class Table {
             return Math.max(d.pop_density_5m, d.pop_density_4m, d.pop_density_3m, d.pop_density_2m, d.pop_density_1m)
         }));
 
+        let tableHeaders = ['region', 'country', 'impacted-area', 'percent-impact', 'population-density'];
+
+        let headerData = tableHeaders.map(x => { 
+            return { head: x, sorted: false}
+        });
+
+        this.selectedCountry = data[0];
+
         this.impactScale = d3
             .scaleLinear()
             .domain([0, max])
             .range([0, 100]);
 
-        this.createTable(data);
+        this.createTable(data, headerData);
     }
 
-    createTable(data) {
+    createTable(data, headerData) {
+
+        let headers = d3
+            .select('.header-row')
+            .selectAll('th')
+            .data(headerData)
+            .classed('reverse-sort', d => d.sorted);
+
+        d3
+            .select('#CountryTable tbody')
+            .selectAll('tr')
+            .remove();
 
         let rows = d3
             .select('#CountryTable tbody')
             .selectAll('tr')
             .data(data)
             .join('tr');
-
 
         let cells = rows
             .selectAll('td')
@@ -82,10 +108,48 @@ class Table {
             .attr('height', Cell.Height)
             .attr('width', d => this.impactScale(d.value[0]));
 
-        rows.on('click', countryObj => this.countryViewRef.update(countryObj));
+        rows.on('click', countryObj => {
+            this.selectedCountry = countryObj;
+            this.countryViewRef.update(this.selectedCountry);
+        });
 
-        // populate with default
-        this.countryViewRef.update(data[0]);
+        this.countryViewRef.update(this.selectedCountry);
+
+        headers.on('click', d => {
+
+            let key = undefined;
+            switch(d.head) {
+                case Columns.Region:
+                    key = 'Region';
+                    break;
+                case Columns.Country:
+                    key = 'Country';
+                    break;
+                case Columns.Area:
+                    key = `area_${this.activeMeters}m`
+                    break;
+                case Columns.AreaPercent:
+                    key = `percent_${this.activeMeters}m`;
+                    break;
+                case Columns.Density:
+                    key = `pop_density_${this.activeMeters}m`;
+                    break;
+                default:
+                    key = 'Region';
+                    break;
+            }
+
+            let newData = data; 
+            if(key === 'Region' || key === 'Country') {
+                newData = this.sort(data, key, d.sorted);
+            }
+            else {
+                newData = this.sortNumeric(data, key, d.sorted);
+            }
+
+            d.sorted = !d.sorted;
+            this.createTable(newData, headerData);
+        });
     }
 
     changeActiveMeters(activeMeters) {
@@ -121,7 +185,56 @@ class Table {
                     let popDens = getPopDensityImpacted(td, this.activeMeters);
                     return this.impactScale(popDens);
                 });
-
         })
+    }
+
+    sort(data, key, reverse) {
+        if(reverse) {
+            return data.sort((a, b) => {
+                if(a[key] === b[key]) {
+                    // fall back is to sort by country
+                    return a.Country > b.Country ? -1 : 1;
+                }
+                else {
+                    return a[key] > b[key] ? -1 : 1;
+                }
+            });
+        }
+        else {
+            return data.sort((a, b) => {
+                if(a[key] === b[key]) {
+                    // fall back is to sort by country
+                    return a.Country > b.Country ? 1 : -1;
+                }
+                else {
+                    return a[key] > b[key] ? 1 : -1;
+                }
+            });
+        }
+    }
+
+    sortNumeric(data, key, reverse) {
+        if(reverse) {
+            return data.sort((a, b) => {
+                if(a[key] === b[key]) {
+                    // fall back is to sort by country
+                    return +(a.Country) > +(b.Country) ? -1 : 1;
+                }
+                else {
+                    return +(a[key]) > +(b[key]) ? -1 : 1;
+                }
+            });
+        }
+        else {
+            return data.sort((a, b) => {
+                if(a[key] === b[key]) {
+                    // fall back is to sort by country
+                    return +(a.Country) > +(b.Country) ? 1 : -1;
+                }
+                else {
+                    return +(a[key]) > +(b[key]) ? 1 : -1;
+                }
+            });
+        }
     }
 }
