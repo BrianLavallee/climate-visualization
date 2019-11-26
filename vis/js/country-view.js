@@ -38,7 +38,7 @@ class CountryView {
     update(countryObj) {
         this.countryObj = countryObj;
         this.updateInfoBox(countryObj);
-        this.change_map("e020n40");
+        this.change_map(countryObj.MapName);
     }
 
     updateInfoBox(countryObj) {
