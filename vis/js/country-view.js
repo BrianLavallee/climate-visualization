@@ -6,8 +6,8 @@ class CountryView {
         this.blocksize = 5;
 		this.width = 4800;
 		this.height = 6000;
-		this.svgwidth = 600;
-		this.svgheight = 750;
+		this.svgwidth = 520;
+		this.svgheight = 650;
 
         this.activeMeters = activeMeters;
 
