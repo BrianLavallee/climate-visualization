@@ -45,8 +45,8 @@ class CountryView {
         this.countryObj = countryObj;
         d3.select('.country-name').html(this.countryObj.Country);
         d3.select('.country-region').html(this.countryObj.Region);
-        d3.select('.country-impacted-area').html('Impacted Area: ' + getAreaImpacted(this.countryObj, this.activeMeters));
-        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + getPercentImpacted(this.countryObj, this.activeMeters));
+        d3.select('.country-impacted-area').html('Impacted Area: ' + getAreaImpacted(this.countryObj, this.activeMeters) + ' km<sup>2</sup>');
+        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + getPercentImpacted(this.countryObj, this.activeMeters) + '%');
     }
 
     drawYearBar() {
