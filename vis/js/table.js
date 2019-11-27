@@ -31,9 +31,11 @@ class Table {
 
         let tableHeaders = ['region', 'country', 'impacted-area', 'percent-impact', 'population-density'];
 
-        let headerData = tableHeaders.map(x => { 
+        let headerData = tableHeaders.map(x => {
             return { head: x, sorted: false}
         });
+
+        this.data = data;
 
         this.selectedCountry = data[0];
 
@@ -149,7 +151,7 @@ class Table {
                     break;
             }
 
-            let newData = data; 
+            let newData = data;
             if(key === 'Region' || key === 'Country') {
                 newData = this.sort(data, key, d.sorted);
             }
@@ -168,7 +170,7 @@ class Table {
         let rows = d3
             .select('#CountryTable tbody')
             .selectAll('tr')
-        
+
         let rects = d3
             .selectAll(`.${tableClassNames.populationDensity}`)
             .selectAll('rect')
@@ -187,7 +189,7 @@ class Table {
                 .text(td => {
                     return getPercentImpacted(td, this.activeMeters);
                 });
-            
+
             node.select('g')
                 .append('rect')
                 .attr('height', Cell.Height)
@@ -196,6 +198,16 @@ class Table {
                     return this.impactScale(popDens);
                 });
         })
+    }
+
+    getCountry(code) {
+        for (let country of this.data) {
+            if (country.CountryCode === code) {
+                return country;
+            }
+        }
+
+        return null;
     }
 
     addTooltip() {

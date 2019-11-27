@@ -1,7 +1,7 @@
 
 class CountryView {
 
-    constructor(activeMeters, borders, UpdateTableActiveMeters) {
+    constructor(activeMeters, borders, UpdateTableActiveMeters, getCountry) {
 
         this.blocksize = 5;
 		this.width = 4800;
@@ -18,6 +18,7 @@ class CountryView {
         this.borders = topojson.feature(borders, borders.objects.countries);
 
         this.UpdateTableActiveMeters = UpdateTableActiveMeters;
+        this.getCountry = getCountry;
         this.sliderWidthPX = 425;
 
         this.createInfoBox();
@@ -278,6 +279,16 @@ class CountryView {
 
             let outline = group.selectAll(".outline").data(this.borders.features);
             outline.enter().append("path").attr("class", "outline").attr("d", d => path(d.geometry)).attr("fill", "none").attr("stroke", "black").attr("id", d => d.id);
+
+            let that = this;
+
+            let click = group.selectAll(".click").data(this.borders.features);
+            click.enter().append("path").attr("d", d => path(d.geometry)).attr("opacity", 0).on("click", function(d) {
+                let co = that.getCountry(d.id);
+                if (co) {
+                    that.update(co);
+                }
+            });
         }
 
         this.position_outline();
