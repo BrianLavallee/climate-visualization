@@ -32,9 +32,10 @@ class CountryView {
         let infoBox = d3.select('#CountryInfo');
 
         infoBox.append('h2').classed('country-name', true);
-        infoBox.append('h4').classed('country-region', true);
-        infoBox.append('h4').classed('country-impacted-area', true);
-        infoBox.append('h4').classed('country-percent-impacted', true);
+        infoBox.append('h5').classed('country-region', true);
+        infoBox.append('h5').classed('country-impacted-area', true);
+        infoBox.append('h5').classed('country-percent-impacted', true);
+        infoBox.append('h5').classed('country-population-impacted', true);
     }
 
     update(countryObj) {
@@ -51,11 +52,13 @@ class CountryView {
     }
 
     updateInfoBox(countryObj) {
-        this.countryObj = countryObj;
+		this.countryObj = countryObj;
+		console.log(this.countryObj);
         d3.select('.country-name').html(this.countryObj.Country);
         d3.select('.country-region').html(this.countryObj.Region);
         d3.select('.country-impacted-area').html('Impacted Area: ' + getAreaImpacted(this.countryObj, this.activeMeters) + ' km<sup>2</sup>');
-        d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + getPercentImpacted(this.countryObj, this.activeMeters) + '%');
+		d3.select('.country-percent-impacted').html('Percent Area Impacted: ' + getPercentImpacted(this.countryObj, this.activeMeters) + '%');
+		d3.select('.country-population-impacted').html('Total Population Impacted: ' + getPopulationImpacted(this.countryObj, this.activeMeters).toLocaleString() + ' people');
     }
 
     drawYearBar() {
