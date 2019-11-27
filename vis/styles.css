@@ -5,6 +5,9 @@
     padding-top: 10px;
 }
 
+.slider-wrap {
+    margin-left: 40px;
+}
 
 .population-density rect {
     fill: #4CAF50;

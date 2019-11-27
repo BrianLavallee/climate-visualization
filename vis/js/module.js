@@ -61,6 +61,24 @@ function getPercentImpacted(countryObj, activeMeters) {
     }
 }
 
+function getPopulationImpacted(countryObj, activeMeters) {
+
+    switch(activeMeters) {
+        case 1:
+            return +countryObj.pop_1m;
+        case 2:
+            return +countryObj.pop_2m;
+        case 3:
+            return +countryObj.pop_3m;
+        case 4:
+            return +countryObj.pop_4m;
+        case 5:
+            return +countryObj.pop_5m;
+        default:
+            return 0;
+    }
+}
+
 function getPopDensityImpacted(countryObj, activeMeters) {
 
     switch(activeMeters) {

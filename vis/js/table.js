@@ -103,6 +103,7 @@ class Table {
             d3
                 .select(n[i])
                 .append('svg')
+                .attr('class', 'density-bar')
                 .attr('width', Cell.Width)
                 .attr('height', Cell.Height)
         });
@@ -112,7 +113,6 @@ class Table {
             .append('g')
             .attr('height', Cell.Height);
         barGroups.append('rect')
-            .attr('class', 'density-bar')
             .attr('height', Cell.Height)
             .attr('width', d => this.impactScale(d.value[0]));
 
@@ -190,7 +190,6 @@ class Table {
             
             node.select('g')
                 .append('rect')
-                .attr('class', 'density-bar')
                 .attr('height', Cell.Height)
                 .attr('width', td => {
                     let popDens = getPopDensityImpacted(td, this.activeMeters);
@@ -199,23 +198,9 @@ class Table {
         })
     }
 
-    /**
-     * Returns html that can be used to render the tooltip.
-     * @param data
-     * @returns {string}
-     */
-    tooltipRender(data) {
-
-        return `<h2>hello</h2><h4>what</h4><h6>goeshere</h6>`;
-    }
-
     addTooltip() {
-        /* TOOL TIP */
-        let rects = d3.selectAll('.density-bar');
-        let tooltip = d3.select('.tooltip');
-
-        let that = this;
-        rects.on('mouseover', function(d) {
+        let bars = d3.selectAll('.density-bar');
+        bars.on('mouseover', function(d) {
             let tooltip = d3.select('.tooltip');
             tooltip.transition()
                 .duration(200)
@@ -224,7 +209,7 @@ class Table {
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 100) + "px");
         });
-        rects.on("mouseout", function() {
+        bars.on("mouseout", function() {
             let tooltip = d3.select('.tooltip');
             tooltip.transition()
                 .duration(500)
