@@ -1,7 +1,7 @@
 
 class CountryView {
 
-    constructor(activeMeters, UpdateTableActiveMeters) {
+    constructor(activeMeters, borders, UpdateTableActiveMeters) {
 
         this.blocksize = 5;
 		this.width = 4800;
@@ -9,9 +9,11 @@ class CountryView {
 		this.svgwidth = 520;
 		this.svgheight = 650;
 
+        this.currentmap == undefined;
+
         this.activeMeters = activeMeters;
 
-        this.activeCountry = undefined;
+        this.borders = topojson.feature(borders, borders.objects.countries);
 
         this.UpdateTableActiveMeters = UpdateTableActiveMeters;
         this.sliderWidthPX = 425;
@@ -38,7 +40,14 @@ class CountryView {
     update(countryObj) {
         this.countryObj = countryObj;
         this.updateInfoBox(countryObj);
-        this.change_map(countryObj.MapName);
+        if (this.currentmap === countryObj.MapName) {
+            // update highlight
+            this.draw_outline();
+        }
+        else {
+            this.change_map(countryObj.MapName);
+        }
+        this.currentmap = countryObj.MapName;
     }
 
     updateInfoBox(countryObj) {
@@ -124,6 +133,7 @@ class CountryView {
 						let src = new Int8Array(buff);
 						that.process(dem, src);
 						that.draw(that.activeMeters);
+                        that.draw_outline();
 					}
 				};
 
@@ -225,7 +235,7 @@ class CountryView {
 			.thresholds([1])
 			(tempsrc);
 
-		function scale (xscale, yscale) {
+		function scale(xscale, yscale) {
 	        return d3.geoTransform({
 	            point: function(x, y) {
 	                this.stream.point(x * xscale, y  * yscale);
@@ -245,4 +255,28 @@ class CountryView {
 		top.enter().append("path").attr("class", "risemap").attr("d", d => path(d)).attr("fill", "#567d46");
 		top.attr("d", d => path(d));
 	}
+
+    draw_outline() {
+        let h = this.height;
+		let w = this.width;
+		let bs = this.blocksize;
+
+        let svg = d3.select("#map");
+
+        let x = parseInt(this.countryObj.MapName.substring(1, 4));
+        let y = parseInt(this.countryObj.MapName.substring(5));
+
+        x *= this.countryObj.MapName[0] === "w" ? 1 : -1;
+        y *= this.countryObj.MapName[4] == "s" ? -1 : 1;
+
+        // width 960
+        // height 480
+        // scale 152.63
+        let projection = d3.geoEquirectangular().scale(744.07).translate([13 * x, 13 * y]);
+        let path = d3.geoPath().projection(projection);
+
+        let outline = svg.selectAll(".outline").data(this.borders.features);
+        outline.enter().append("path").attr("class", "outline").attr("d", d => path(d.geometry)).attr("fill", "none").attr("stroke", "black").attr("opacity", d => d.id === this.countryObj.CountryCode ? 0.5 : 0.1);
+        outline.attr("d", d => path(d.geometry)).attr("opacity", d => d.id === this.countryObj.CountryCode ? 0.5 : 0.1);
+    }
 }

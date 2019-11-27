@@ -10,6 +10,8 @@ d3.csv('data/area-pop-density-impact.csv').then(data => {
         table.changeActiveMeters(activeMeters);
     }
 
-    countryView = new CountryView(activeMeters, UpdateTableActiveMeters);
-    table = new Table(countryView, data, activeMeters);
+    d3.json("data/world.json").then(borders => {
+        countryView = new CountryView(activeMeters, borders, UpdateTableActiveMeters);
+        table = new Table(countryView, data, activeMeters);
+    });
 });
