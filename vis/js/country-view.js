@@ -9,6 +9,8 @@ class CountryView {
 		this.svgwidth = 520;
 		this.svgheight = 650;
 
+        this.drawn = false;
+
         this.currentmap == undefined;
 
         this.activeMeters = activeMeters;
@@ -39,6 +41,9 @@ class CountryView {
     }
 
     update(countryObj) {
+        if (this.countryObj) {
+            d3.select("#" + this.countryObj.CountryCode).classed("highlight", false);
+        }
         this.countryObj = countryObj;
         this.updateInfoBox(countryObj);
         if (this.currentmap === countryObj.MapName) {
@@ -116,6 +121,7 @@ class CountryView {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // map drawing
     change_map(name) {
+        let t0 = performance.now();
 		let that = this;
 		let demreq = new XMLHttpRequest();
 		demreq.open("GET", "./data/maps/" + name + ".dem", true);
@@ -133,8 +139,11 @@ class CountryView {
 					let buff = srcreq.response;
 					if (buff) {
 						let src = new Int8Array(buff);
+                        console.log(performance.now() - t0);
 						that.process(dem, src);
+                        console.log(performance.now() - t0);
 						that.draw(that.activeMeters);
+                        console.log(performance.now() - t0);
                         that.draw_outline();
 					}
 				};
@@ -259,26 +268,35 @@ class CountryView {
 	}
 
     draw_outline() {
-        let h = this.height;
-		let w = this.width;
-		let bs = this.blocksize;
+        if (!this.drawn) {
+            this.drawn = true;
+            let svg = d3.select("#map");
+            let group = svg.append("g");
 
-        let svg = d3.select("#map");
+            let projection = d3.geoEquirectangular().scale(744.07).translate([0, 0]);
+            let path = d3.geoPath().projection(projection);
+
+            let outline = group.selectAll(".outline").data(this.borders.features);
+            outline.enter().append("path").attr("class", "outline").attr("d", d => path(d.geometry)).attr("fill", "none").attr("stroke", "black").attr("id", d => d.id);
+        }
+
+        this.position_outline();
+    }
+
+    position_outline() {
+        let group = d3.select("#map").select("g");
 
         let x = parseInt(this.countryObj.MapName.substring(1, 4));
         let y = parseInt(this.countryObj.MapName.substring(5));
-
         x *= this.countryObj.MapName[0] === "w" ? 1 : -1;
         y *= this.countryObj.MapName[4] == "s" ? -1 : 1;
 
         // width 960
         // height 480
         // scale 152.63
-        let projection = d3.geoEquirectangular().scale(744.07).translate([13 * x, 13 * y]);
-        let path = d3.geoPath().projection(projection);
-
-        let outline = svg.selectAll(".outline").data(this.borders.features);
-        outline.enter().append("path").attr("class", "outline").attr("d", d => path(d.geometry)).attr("fill", "none").attr("stroke", "black").attr("opacity", d => d.id === this.countryObj.CountryCode ? 0.5 : 0.1);
-        outline.attr("d", d => path(d.geometry)).attr("opacity", d => d.id === this.countryObj.CountryCode ? 0.5 : 0.1);
+        let projection = d3.geoEquirectangular().scale(744.07).translate([0, 0]);
+        let pos = projection([x, y]);
+        group.attr("transform", "translate(" + pos[0] + ", " + (-1 * pos[1]) + ")");
+        d3.select("#" + this.countryObj.CountryCode).classed("highlight", true);
     }
 }

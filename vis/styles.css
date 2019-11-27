@@ -111,6 +111,16 @@ table.head tr td {
     font-family: 'font1';
 }
 
+/* outline */
+
+.outline {
+    opacity: 0.1;
+}
+
+.highlight {
+    opacity: 0.5;
+}
+
 
 
 
@@ -118,7 +128,7 @@ table.head tr td {
 
 
 /*tooltip */
- 
+
 div.tooltip {
     position: absolute;
     text-align: center;
