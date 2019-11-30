@@ -3,10 +3,10 @@ class CountryView {
 
     /**
      * Creates the coutnry view that contains the info box, map, and slider
-     * @param {The default selected meters} activeMeters 
-     * @param borders 
-     * @param {Callback to update the table after the slider moves} UpdateTableActiveMeters 
-     * @param getCountry 
+     * @param {The default selected meters} activeMeters
+     * @param borders
+     * @param {Callback to update the table after the slider moves} UpdateTableActiveMeters
+     * @param getCountry
      */
     constructor(activeMeters, borders, UpdateTableActiveMeters, getCountry) {
 
@@ -53,7 +53,7 @@ class CountryView {
 
     /**
      * Updates the view with the specified country
-     * @param countryObj 
+     * @param countryObj
      */
     update(countryObj) {
         if (this.countryObj) {
@@ -73,7 +73,7 @@ class CountryView {
 
     /**
      * Updates the info box with the specified country
-     * @param {*} countryObj 
+     * @param {*} countryObj
      */
     updateInfoBox(countryObj) {
 		this.countryObj = countryObj;
@@ -143,6 +143,9 @@ class CountryView {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // map drawing
+    /**
+     *  Loads the data to draw the chosen region, downselects the data, and draws the map
+     */
     change_map(name) {
         let t0 = performance.now();
 		let that = this;
@@ -178,6 +181,9 @@ class CountryView {
 		demreq.send(null);
 	}
 
+    /**
+     *  Raw data is in in the wrong endian form, needs to be converted
+     */
 	process(dem, src) {
 		let temp = new Int16Array(dem.length / 2);
 		for (let i = 0; i < dem.length; i += 2) {
@@ -189,6 +195,9 @@ class CountryView {
 		this.src = this.downselect(src);
 	}
 
+    /**
+     *  Consolidates blocksize x blocksize grids within the data into a single cell
+     */
 	downselect(data) {
 		let h = this.height;
 		let w = this.width;
@@ -212,6 +221,9 @@ class CountryView {
 		return dsdata;
 	}
 
+    /**
+     *  Draws the map for a given rise
+     */
 	draw(rise) {
 		this.activeMeters = rise;
         rise *= 5;
@@ -221,8 +233,11 @@ class CountryView {
 		let w = this.width;
 		let bs = this.blocksize;
 
+        // keeps track of cells that have been determined to avoid repeated work
 		let visited = new Set();
 		let stack = [];
+
+        // finds all ocean cells to seed dfs process
 		for (let row = 0; row < h/bs; row++) {
 			for (let col = 0; col < w/bs; col++) {
 				if (tempsrc[row * w/bs + col] == 0) {
@@ -231,6 +246,7 @@ class CountryView {
 			}
 		}
 
+        // dfs
 		while (stack.length > 0) {
 			let x = stack.pop();
 			let row = x[0];
@@ -241,15 +257,20 @@ class CountryView {
 				continue;
 			}
 
+            // if can reach the current cell from ocean, set to ocean
 			tempsrc[index] = 0;
 			visited.add(index);
 
+            // all 4 neighbors in the cardinal directions
 			let neighbors = [[row + 1, col], [row - 1, col], [row, col + 1], [row, col - 1]];
 			for (let n of neighbors) {
 				let r = n[0];
 				let c = n[1];
+
+                // check bounds
 				if (r < h/bs && r >= 0 && col < w/bs & col >= 0) {
 					let i = r * w/bs + c;
+                    // set to ocean if elevation is less than the given amount of sea level rise
 					if (this.dem[i] <= rise) {
 						if (!visited.has(i)) {
 							stack.push(n);
@@ -259,11 +280,13 @@ class CountryView {
 			}
 		}
 
+        // determine the countours for 0 sea level rise
 		var basecontour = d3.contours()
 			.size([w/bs, h/bs])
 			.thresholds([1])
 			(this.src);
 
+        // determine the countours for given sea level rise
 		var risecontour = d3.contours()
 			.size([w/bs, h/bs])
 			.thresholds([1])
@@ -277,10 +300,14 @@ class CountryView {
 	        });
 	    }
 
+        // sets svg attributes and draws background
 		let svg = d3.select("#map").attr("width", this.svgwidth).attr("height", this.svgheight);
 		svg.selectAll("rect").data([0]).enter().append("rect").attr("fill", "#3e6e7a").attr("width", this.svgwidth).attr("height", this.svgheight);
+
+
 		let path = d3.geoPath().projection(scale(bs/w*this.svgwidth, bs/h*this.svgheight));
 
+        // draws contours (just geojson)
 		let base = svg.selectAll(".basemap").data(basecontour);
 		base.enter().append("path").attr("class", "basemap").attr("d", d => path(d)).attr("fill", "#879ca3");
 		base.attr("d", d => path(d));
@@ -290,7 +317,11 @@ class CountryView {
 		top.attr("d", d => path(d));
 	}
 
+    /**
+     * Draws the outline of the countries on top of the map
+     */
     draw_outline() {
+        // creates the svg elements necessary if not yet created
         if (!this.drawn) {
             this.drawn = true;
             let svg = d3.select("#map");
@@ -313,12 +344,17 @@ class CountryView {
             });
         }
 
+        // repositions the map so that it aligns with the selected region
         this.position_outline();
     }
 
+    /**
+     *  Positions the country outline so that it matches the map view
+     */
     position_outline() {
         let group = d3.select("#map").select("g");
 
+        // parses the filename to determine the lat long of 0,0 in the svg
         let x = parseInt(this.countryObj.MapName.substring(1, 4));
         let y = parseInt(this.countryObj.MapName.substring(5));
         x *= this.countryObj.MapName[0] === "w" ? 1 : -1;
@@ -327,9 +363,14 @@ class CountryView {
         // width 960
         // height 480
         // scale 152.63
+        // uses d3 projection to determine the proper offset
         let projection = d3.geoEquirectangular().scale(744.07).translate([0, 0]);
         let pos = projection([x, y]);
+
+        // translates the group containing the outlines
         group.attr("transform", "translate(" + pos[0] + ", " + (-1 * pos[1]) + ")");
+
+        // ensures the correct country is highlighted
         d3.select("#" + this.countryObj.CountryCode).classed("highlight", true);
     }
 }
