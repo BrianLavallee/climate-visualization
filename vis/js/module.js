@@ -21,6 +21,7 @@ let tableClassNames = {
     area: 'area',
     areaImpact: 'area-impact',
     percentImpact: 'percent-impact',
+    population: 'population-impact',
     populationDensity: 'population-density'
 };
 

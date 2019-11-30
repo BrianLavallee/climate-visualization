@@ -16,6 +16,7 @@ let Columns = {
     Country: 'country',
     Area: 'impacted-area',
     AreaPercent: 'percent-impact',
+    Population: 'population-impact',
     Density: 'population-density'
 };
 
@@ -29,7 +30,7 @@ class Table {
             return Math.max(d.pop_density_5m, d.pop_density_4m, d.pop_density_3m, d.pop_density_2m, d.pop_density_1m)
         }));
 
-        let tableHeaders = ['region', 'country', 'impacted-area', 'percent-impact', 'population-density'];
+        let tableHeaders = ['region', 'country', 'impacted-area', 'percent-impact', 'population-impact', 'population-density'];
 
         let headerData = tableHeaders.map(x => {
             return { head: x, sorted: false}
@@ -79,6 +80,7 @@ class Table {
 
                 let areaImpact = getAreaImpacted(d, this.activeMeters);
                 let percImpact = getPercentImpacted(d, this.activeMeters);
+                let population = getPopulationImpacted(d, this.activeMeters).toLocaleString();
                 let popDensity = getPopDensityImpacted(d, this.activeMeters);
 
                 return [
@@ -86,6 +88,7 @@ class Table {
                     new TData(VisType.Text, [d.Country], tableClassNames.country),
                     new TData(VisType.Text, [areaImpact], tableClassNames.areaImpact),
                     new TData(VisType.Text, [percImpact], tableClassNames.percentImpact),
+                    new TData(VisType.Text, [population], tableClassNames.population),
                     new TData(VisType.Bar, [popDensity], tableClassNames.populationDensity)
                 ];
             })
@@ -143,6 +146,9 @@ class Table {
                 case Columns.AreaPercent:
                     key = `percent_${this.activeMeters}m`;
                     break;
+                case Columns.Population:
+                    key = `pop_${this.activeMeters}m`;
+                    break;
                 case Columns.Density:
                     key = `pop_density_${this.activeMeters}m`;
                     break;
@@ -190,6 +196,11 @@ class Table {
                     return getPercentImpacted(td, this.activeMeters);
                 });
 
+            node.select(`.${tableClassNames.population}`)
+                .text(td => {
+                    return getPopulationImpacted(td, this.activeMeters).toLocaleString();
+                });
+
             node.select('g')
                 .append('rect')
                 .attr('height', Cell.Height)
@@ -231,7 +242,7 @@ class Table {
 
 
     sort(data, key, reverse) {
-        if(reverse) {
+        if(!reverse) {
             return data.sort((a, b) => {
                 if(a[key] === b[key]) {
                     // fall back is to sort by country
@@ -256,7 +267,7 @@ class Table {
     }
 
     sortNumeric(data, key, reverse) {
-        if(reverse) {
+        if(!reverse) {
             return data.sort((a, b) => {
                 if(a[key] === b[key]) {
                     // fall back is to sort by country
