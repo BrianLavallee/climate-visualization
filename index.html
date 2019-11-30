@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Global Impact of Sea Level Rise</title>
+
+    <link rel="stylesheet" href="vis/styles.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.js"></script>
+    <script src="https://d3js.org/d3-contour.v1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.js"></script>
+
+</head>
+
+<body>
+
+    <div class="custom-container">
+        <header>
+            <h1>Global Impact of Sea Level Rise</h1>
+            <div>Brian Lavallee and Daniel Merrell</div>
+        </header>
+
+        <div class="row">
+            <div class="col-6">
+                <br />
+                <h5>Overview</h5>
+                <p>Climate change has serious global impacts. This visualization aims to capture some of those impacts as they relate to sea level.
+                   The table is populated with coastal countries that will be affected by sea level rise. Select a country and see the impact of sea level rise after 1, 2, 3, 4, or 5 meters. Read more about our design choices in our process book <a href="../process-book/process-book.pdf">here</a>.
+                </p>
+                <br />
+                <h5>Interactions</h5>
+                <ul>
+                    <li>View each country by clicking on the rows of the table or on the map </li>
+                    <li>Use the slider to view any country after 1, 2, 3, 4, or 5 meters of sea level rise</li>
+                    <li>See the data in the table change after moving the slider</li>
+                    <li>Sort the columns by clicking on the headers</li>
+                    <li>Hover over the bars in the table to see the population density of the impacted region</li>
+                </ul>
+            </div>
+            <div class="col-6">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/1NB63qZDB9k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="CountryTableWrap" class="col-7 wrap">
+                <table class="head">
+                    <thead>
+                        <tr class="header-row">
+                            <th>Region</th>
+                            <th>Country</th>
+                            <th>Impacted Area (km<sup>2</sup>)</th>
+                            <th>Percent Area Impacted</th>
+                            <th>Population Impacted</th>
+                            <th>Population Density of Impacted Area</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div id="CountryTable" class="inner-table">
+                    <table>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div id="CountryView" class="col-5">
+            </div>
+        </div>
+    </div>
+
+    <script src="vis/js/module.js"></script>
+    <script src="vis/js/country-view.js"></script>
+    <script src="vis/js/table.js"></script>
+    <script src="vis/js/script.js"></script>
+</body>
+</html>
