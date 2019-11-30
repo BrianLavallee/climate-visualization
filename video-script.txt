@@ -1,0 +1,25 @@
+
+
+This is a visualization of sea level rise scenarios created by Brian Lavallee, and Daniel Merrell.
+
+
+We wanted to create some kind of visualization that had to with climate. One major impact of climate change is land loss due to rising sea levels. We aquired elevation maps captured by satellites. 
+
+They are grayscale images where the color of each pixel encodes the mean elevation. Each pixel represents 64 square kilometers. We have a second data set that contains statistics on area and population impacts of sea level rise.
+
+Combining those datasets, we created this visualization: Each row is a developing country that will be affected by sea level rise. Clicking on a country shows a map with the selected country outlined. The pixel maps have been converted to geo-json. Using the elevation data encoded in each pixel, we scan over the image and change the colors of the pixels to show a view of the country after various scenarios of sea level rise. 
+
+This is a view of Somalia after 1 meter of sea level rise. By moving the slider, you can see that after 5 meters of sea level rise, a larger portion of the country is covered by water. Specifically, 2000 square km of land is lost and 177,000 people are displaced.
+
+You can select different countries on the map to see their statistics. 
+
+Every time the slider moves, the data in the table and in the info box is updated. 
+
+You can sort the columns of the table to find which countries are affected the most. The bars in the table, show the population density of the impacted region. Let's sort by this column. 
+
+We can see in Taiwan, that even though a comparitively small portion of land is covered, the land is very dense in population. By hovering over the bar, we can see that almost 1200 people live in every square KM that will be covered. 
+
+We are pleased that we were able to combine these two datasets to uncover and convey additional information. Thank you.
+
+
+https://youtu.be/1NB63qZDB9k
