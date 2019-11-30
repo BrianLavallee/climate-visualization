@@ -1,5 +1,5 @@
 
-d3.csv('data/area-pop-density-impact.csv').then(data => {
+d3.csv('./data/area-pop-density-impact.csv').then(data => {
 
     let countryView = undefined;
     let table = undefined;
@@ -14,7 +14,7 @@ d3.csv('data/area-pop-density-impact.csv').then(data => {
         return table.getCountry(code);
     }
 
-    d3.json("data/world.json").then(borders => {
+    d3.json("./data/world.json").then(borders => {
         countryView = new CountryView(activeMeters, borders, UpdateTableActiveMeters, getCountry);
         table = new Table(countryView, data, activeMeters);
     });

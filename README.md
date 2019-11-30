@@ -2,6 +2,7 @@
 All code and data is found in the vis directory.  There are no outside libraries in the repo.
 
 video: https://www.youtube.com/embed/1NB63qZDB9k
+
 website:
 
 Countries can be selected in the map view by clicking on rows in the table or by clicking within their outline on the map.
