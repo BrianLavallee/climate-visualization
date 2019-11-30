@@ -1,6 +1,6 @@
 
 
-// Types of vis to appear in tds
+// *********** Constants
 let VisType = {
     Text: 'text',
     Bar: 'bar'
@@ -19,9 +19,16 @@ let Columns = {
     Population: 'population-impact',
     Density: 'population-density'
 };
+// *********** 
 
 class Table {
 
+    /**
+     * Main table that contains all of the countries
+     * @param {Reference to the country view object} countryViewRef 
+     * @param data 
+     * @param {Default selection for slider} activeMeters 
+     */
     constructor(countryViewRef, data, activeMeters) {
         this.countryViewRef = countryViewRef;
         this.activeMeters = activeMeters;
@@ -55,6 +62,11 @@ class Table {
             .style("opacity", 0);
     }
 
+    /**
+     * Creates and updates the table with the given dataset
+     * @param {Main dataset} data 
+     * @param {Table headers for sorting} headerData 
+     */
     createTable(data, headerData) {
 
         let headers = d3
@@ -74,6 +86,7 @@ class Table {
             .data(data)
             .join('tr');
 
+        // populate table rows
         let cells = rows
             .selectAll('td')
             .data(d => {
@@ -101,6 +114,7 @@ class Table {
             .filter(d => d.visType === VisType.Text);
         textCells.text(d => d.value[0]);
 
+        // make bar graphics
         let barCells = d3
             .selectAll('td')
             .filter(d => d.visType == VisType.Bar);
@@ -112,7 +126,6 @@ class Table {
                 .attr('width', Cell.Width)
                 .attr('height', Cell.Height)
         });
-
         let barGroups = barCells
             .selectAll('svg')
             .append('g')
@@ -123,13 +136,16 @@ class Table {
 
         this.addTooltip();
 
+        // wire up communication between table and country view
         rows.on('click', countryObj => {
             this.selectedCountry = countryObj;
             this.countryViewRef.update(this.selectedCountry);
         });
 
+        // select a default country
         this.countryViewRef.update(this.selectedCountry);
 
+        // set up sorting callback
         headers.on('click', d => {
 
             let key = undefined;
@@ -170,6 +186,10 @@ class Table {
         });
     }
 
+    /**
+     * Callback to be invoked everytime the slider moves
+     * @param {The selected meters of sea level rise} activeMeters 
+     */
     changeActiveMeters(activeMeters) {
         this.activeMeters = activeMeters;
 
@@ -182,6 +202,7 @@ class Table {
             .selectAll('rect')
             .remove();
 
+        // update all the table rows
         rows.each((x, i, nodes) => {
 
             let node = d3.select(nodes[i]);
@@ -221,6 +242,9 @@ class Table {
         return null;
     }
 
+    /**
+     * Add tooltip to bars on hover
+     */
     addTooltip() {
         let bars = d3.selectAll('.density-bar');
         bars.on('mouseover', function(d) {
@@ -241,6 +265,13 @@ class Table {
     }
 
 
+
+    /**
+     * Sort table rows that are non-numeric
+     * @param data 
+     * @param key 
+     * @param reverse 
+     */
     sort(data, key, reverse) {
         if(!reverse) {
             return data.sort((a, b) => {
@@ -266,6 +297,12 @@ class Table {
         }
     }
 
+    /**
+     * Sort columns that have numeric data
+     * @param data 
+     * @param key 
+     * @param reverse 
+     */
     sortNumeric(data, key, reverse) {
         if(!reverse) {
             return data.sort((a, b) => {
