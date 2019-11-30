@@ -192,7 +192,7 @@ class CountryView {
 
 	draw(rise) {
 		this.activeMeters = rise;
-        rise *= 10;
+        rise *= 5;
 		let tempsrc = this.src.slice(0);
 
 		let h = this.height;
