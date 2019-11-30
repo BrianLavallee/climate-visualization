@@ -230,7 +230,7 @@ class Table {
                 .style("opacity", .9);
             tooltip.html(`<h2>${Math.floor(d.value)} people/km<sup>2</sup> </h2>` + "<br/>")
                 .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 300) + "px");
+                .style("top", (d3.event.pageY - 450) + "px");
         });
         bars.on("mouseout", function() {
             let tooltip = d3.select('.tooltip');
@@ -238,6 +238,7 @@ class Table {
                 .duration(500)
                 .style("opacity", 0);
         });
+        console.log("a");
     }
 
 
