@@ -1,6 +1,13 @@
 
 class CountryView {
 
+    /**
+     * Creates the coutnry view that contains the info box, map, and slider
+     * @param {The default selected meters} activeMeters 
+     * @param borders 
+     * @param {Callback to update the table after the slider moves} UpdateTableActiveMeters 
+     * @param getCountry 
+     */
     constructor(activeMeters, borders, UpdateTableActiveMeters, getCountry) {
 
         this.blocksize = 5;
@@ -25,6 +32,9 @@ class CountryView {
         this.drawYearBar();
     }
 
+    /**
+     * Creates the elements for the info box
+     */
     createInfoBox() {
 
         d3
@@ -41,6 +51,10 @@ class CountryView {
         infoBox.append('h5').classed('country-population-impacted', true);
     }
 
+    /**
+     * Updates the view with the specified country
+     * @param countryObj 
+     */
     update(countryObj) {
         if (this.countryObj) {
             d3.select("#" + this.countryObj.CountryCode).classed("highlight", false);
@@ -57,6 +71,10 @@ class CountryView {
         this.currentmap = countryObj.MapName;
     }
 
+    /**
+     * Updates the info box with the specified country
+     * @param {*} countryObj 
+     */
     updateInfoBox(countryObj) {
 		this.countryObj = countryObj;
         d3.select('.country-name').html(this.countryObj.Country);
@@ -66,6 +84,9 @@ class CountryView {
 		d3.select('.country-population-impacted').html('Total Population Impacted: ' + getPopulationImpacted(this.countryObj, this.activeMeters).toLocaleString() + ' people');
     }
 
+    /**
+     * Creates the elements for the slider
+     */
     drawYearBar() {
 
         d3
@@ -103,6 +124,7 @@ class CountryView {
         sliderText.attr('x', sliderTextScale(this.activeMeters));
         sliderText.attr('y', 25);
 
+        // Set up callback for slider events
         yearSlider.on('input', (_, __, sliderArr) => {
 
             this.activeMeters = +(sliderArr[0].value);

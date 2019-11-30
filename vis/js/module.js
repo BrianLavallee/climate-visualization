@@ -1,4 +1,7 @@
 
+
+/************ HELPER FUNCTIONS AND CONSTANTS USED BY THE TABLE AND COUNTRY VIEW ************/
+
 /**
  * Data for td elements
  */
