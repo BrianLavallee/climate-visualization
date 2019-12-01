@@ -262,7 +262,6 @@ class Table {
                 .duration(500)
                 .style("opacity", 0);
         });
-        console.log("a");
     }
 
 

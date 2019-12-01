@@ -9,10 +9,8 @@ class CountryView {
      * @param getCountry
      */
     constructor(activeMeters, borders, UpdateTableActiveMeters, getCountry) {
-
-        this.blocksize = 5;
-		this.width = 4800;
-		this.height = 6000;
+		this.width = 960;
+		this.height = 1200;
 		this.svgwidth = 520;
 		this.svgheight = 650;
 
@@ -147,7 +145,6 @@ class CountryView {
      *  Loads the data to draw the chosen region, downselects the data, and draws the map
      */
     change_map(name) {
-        let t0 = performance.now();
 		let that = this;
 		let demreq = new XMLHttpRequest();
 		demreq.open("GET", "./data/maps/" + name + ".dem", true);
@@ -165,11 +162,8 @@ class CountryView {
 					let buff = srcreq.response;
 					if (buff) {
 						let src = new Int8Array(buff);
-                        console.log(performance.now() - t0);
 						that.process(dem, src);
-                        console.log(performance.now() - t0);
-						that.draw(that.activeMeters);
-                        console.log(performance.now() - t0);
+                        that.draw(that.activeMeters);
                         that.draw_outline();
 					}
 				};
@@ -187,38 +181,12 @@ class CountryView {
 	process(dem, src) {
 		let temp = new Int16Array(dem.length / 2);
 		for (let i = 0; i < dem.length; i += 2) {
-			let x = (dem[i] << 8) + dem[i+1];
+            let x = (dem[i+1] << 8) + dem[i];
 			temp[i/2] = x;
 		}
 
-		this.dem = this.downselect(temp);
-		this.src = this.downselect(src);
-	}
-
-    /**
-     *  Consolidates blocksize x blocksize grids within the data into a single cell
-     */
-	downselect(data) {
-		let h = this.height;
-		let w = this.width;
-		let bs = this.blocksize;
-
-		let dsdata = new Int16Array(h/bs * w/bs);
-		for (let row = 0; row < h; row += bs) {
-			for (let col = 0; col < w; col += bs) {
-				let val = data[row * w + col];
-				for (let i = 0; i < bs; i++) {
-					for (let j = 0; j < bs; j++) {
-						let index = ((row + i) * w) + (col + j);
-						val = Math.max(val, data[index]);
-					}
-				}
-
-				dsdata[row/bs * w/bs + col/bs] = val;
-			}
-		}
-
-		return dsdata;
+        this.dem = temp;
+        this.src = src;
 	}
 
     /**
@@ -231,16 +199,15 @@ class CountryView {
 
 		let h = this.height;
 		let w = this.width;
-		let bs = this.blocksize;
 
         // keeps track of cells that have been determined to avoid repeated work
 		let visited = new Set();
 		let stack = [];
 
         // finds all ocean cells to seed dfs process
-		for (let row = 0; row < h/bs; row++) {
-			for (let col = 0; col < w/bs; col++) {
-				if (tempsrc[row * w/bs + col] == 0) {
+		for (let row = 0; row < h; row++) {
+			for (let col = 0; col < w; col++) {
+				if (tempsrc[row * w + col] == 0) {
 					stack.push([row, col]);
 				}
 			}
@@ -252,7 +219,7 @@ class CountryView {
 			let row = x[0];
 			let col = x[1];
 
-			let index = row * w/bs + col;
+			let index = row * w + col;
 			if (visited.has(index)) {
 				continue;
 			}
@@ -268,8 +235,8 @@ class CountryView {
 				let c = n[1];
 
                 // check bounds
-				if (r < h/bs && r >= 0 && col < w/bs & col >= 0) {
-					let i = r * w/bs + c;
+				if (r < h && r >= 0 && col < w & col >= 0) {
+					let i = r * w + c;
                     // set to ocean if elevation is less than the given amount of sea level rise
 					if (this.dem[i] <= rise) {
 						if (!visited.has(i)) {
@@ -282,13 +249,13 @@ class CountryView {
 
         // determine the countours for 0 sea level rise
 		var basecontour = d3.contours()
-			.size([w/bs, h/bs])
+			.size([w, h])
 			.thresholds([1])
 			(this.src);
 
         // determine the countours for given sea level rise
 		var risecontour = d3.contours()
-			.size([w/bs, h/bs])
+			.size([w, h])
 			.thresholds([1])
 			(tempsrc);
 
@@ -305,7 +272,7 @@ class CountryView {
 		svg.selectAll("rect").data([0]).enter().append("rect").attr("fill", "#3e6e7a").attr("width", this.svgwidth).attr("height", this.svgheight);
 
 
-		let path = d3.geoPath().projection(scale(bs/w*this.svgwidth, bs/h*this.svgheight));
+		let path = d3.geoPath().projection(scale(this.svgwidth/w, this.svgheight/h));
 
         // draws contours (just geojson)
 		let base = svg.selectAll(".basemap").data(basecontour);
