@@ -4,7 +4,7 @@ import sys
 data = []
 name = "e140n40"
 
-with open("oldmaps/" + name + ".dem", "rb") as fr:
+with open("rawmaps/" + name + ".dem", "rb") as fr:
     while True:
         a = fr.read(1)
         b = fr.read(1)
