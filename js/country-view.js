@@ -153,7 +153,7 @@ class CountryView {
 		demreq.onload = function (demevent) {
 			let arrayBuffer = demreq.response;
 			if (arrayBuffer) {
-				let dem = new Int8Array(arrayBuffer);
+				that.dem = new Int16Array(arrayBuffer);
 
 				let srcreq = new XMLHttpRequest();
 				srcreq.open("GET", "./data/maps/" + name + ".src", true);
@@ -161,8 +161,7 @@ class CountryView {
 				srcreq.onload = function(srcevent) {
 					let buff = srcreq.response;
 					if (buff) {
-						let src = new Int8Array(buff);
-						that.process(dem, src);
+						that.src = new Int8Array(buff);
                         that.draw(that.activeMeters);
                         that.draw_outline();
 					}
@@ -173,20 +172,6 @@ class CountryView {
 		};
 
 		demreq.send(null);
-	}
-
-    /**
-     *  Raw data is in in the wrong endian form, needs to be converted
-     */
-	process(dem, src) {
-		let temp = new Int16Array(dem.length / 2);
-		for (let i = 0; i < dem.length; i += 2) {
-            let x = (dem[i+1] << 8) + dem[i];
-			temp[i/2] = x;
-		}
-
-        this.dem = temp;
-        this.src = src;
 	}
 
     /**
